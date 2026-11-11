@@ -18,6 +18,7 @@
     <name>environmental-impact-service</name>
     <description>Environmental Impact Service for ReLoop</description>
 
+
     <properties>
         <java.version>17</java.version>
     </properties>
@@ -27,7 +28,16 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
+        
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>2.5.0</version>
+        </dependency>
     </dependencies>
+    
+    
+    
 
     <build>
         <plugins>
