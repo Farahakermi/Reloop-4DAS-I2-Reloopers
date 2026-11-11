@@ -3,9 +3,11 @@ package tn.esprit.collectionservice.controllers;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import tn.esprit.collectionservice.clients.dto.MaterialDto;
 import tn.esprit.collectionservice.entities.Collection;
 import tn.esprit.collectionservice.services.CollectionService;
 
@@ -20,14 +22,27 @@ public class CollectionController {
 
     private final CollectionService service;
 
+    // Inject the microservice name from application.properties
+    @Value("${spring.application.name}")
+    private String serviceName;
+
+    // =========================================================
+    // NEW ENDPOINT: Hello Test
+    // =========================================================
+    @GetMapping("/hello")
+    @Operation(summary = "Hello Endpoint", description = "Returns a welcome message and the name of this microservice")
+    public ResponseEntity<String> hello() {
+        return ResponseEntity.ok("Hello from the " + serviceName + " microservice! 🚀");
+    }
+
     @GetMapping
-    @Operation(summary = "Get all collections", description = "Retrieves a list of all recorded collections")
+    @Operation(summary = "Get all collections")
     public ResponseEntity<List<Collection>> getAll() {
         return ResponseEntity.ok(service.getAll());
     }
 
     @GetMapping("/{id}")
-    @Operation(summary = "Get a collection by ID", description = "Retrieves a specific collection by its ID")
+    @Operation(summary = "Get a collection by ID")
     public ResponseEntity<Collection> getById(@PathVariable Long id) {
         Collection collection = service.getById(id);
         if (collection != null) {
@@ -44,7 +59,7 @@ public class CollectionController {
     }
 
     @PutMapping("/{id}")
-    @Operation(summary = "Update a collection", description = "Updates an existing collection by its ID")
+    @Operation(summary = "Update a collection")
     public ResponseEntity<Collection> update(@PathVariable Long id, @RequestBody Collection c) {
         Collection updated = service.update(id, c);
         if (updated != null) {
@@ -54,12 +69,26 @@ public class CollectionController {
     }
 
     @DeleteMapping("/{id}")
-    @Operation(summary = "Delete a collection", description = "Deletes a collection by its ID")
+    @Operation(summary = "Delete a collection")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         boolean deleted = service.delete(id);
         if (deleted) {
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.notFound().build();
+    }
+
+    @GetMapping("/test-material/{id}")
+    @Operation(summary = "TEST FEIGN: Get Material from Marketplace", description = "Calls the Marketplace Microservice via OpenFeign to fetch a material by its ID")
+    public ResponseEntity<MaterialDto> testGetMaterial(@PathVariable Long id) {
+        try {
+            MaterialDto material = service.getMaterialFromMarketplace(id);
+            if (material == null || material.getId() == null) {
+                return ResponseEntity.notFound().build();
+            }
+            return ResponseEntity.ok(material);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 }

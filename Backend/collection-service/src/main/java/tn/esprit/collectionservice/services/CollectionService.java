@@ -32,7 +32,7 @@ public class CollectionService {
     public Collection update(Long id, Collection c) {
         if (repository.existsById(id)) {
             validateMaterial(c.getMaterialId());
-            c.setId(id); // ensure the ID is preserved
+            c.setId(id);
             return repository.save(c);
         }
         return null;
@@ -46,7 +46,11 @@ public class CollectionService {
         return false;
     }
 
-    // Helper method to validate the materialId with marketplace-service
+    // NEW METHOD: To test Feign directly from Swagger
+    public MaterialDto getMaterialFromMarketplace(Long id) {
+        return marketplaceClient.getMaterial(id);
+    }
+
     private void validateMaterial(Long materialId) {
         if (materialId == null) {
             throw new RuntimeException("materialId cannot be null");
